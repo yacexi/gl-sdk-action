@@ -1,0 +1,59 @@
+on: 
+  workflow_dispatch:
+    inputs:
+      device:
+        description: 'Select device'     
+        required: true
+        type: choice
+        options:
+        - AX1800
+        - AXT1800
+        - MT2500
+        - MT3000
+        - SF1200
+        - SFT1200
+      sourcecode:
+        description: 'Source code URL'     
+        required: true
+      pkgname:
+        description: 'Openwrt package name'  
+        required: true
+      email:
+        description: 'Git accuont email address'  
+        required: false
+      password:
+        description: 'Git account password'  
+        required: false
+        
+jobs:
+  setpackage:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: build ipk
+      id: build
+      env:
+        SOURCECODEURL: ${{ github.event.inputs.sourcecode }}
+        PKGNAME: ${{ github.event.inputs.pkgname }}
+        BOARD: ${{ github.event.inputs.device }}
+        EMAIL: ${{ github.event.inputs.email }}
+        PASSWORD: ${{ github.event.inputs.password }}
+      run: |
+        cd $GITHUB_WORKSPACE
+        ./config --enable-eap-peap --enable-libipsec --disable-defaults --enable-silent-rules  \
+             --enable-charon --enable-systemd --enable-ikev2 --enable-vici --enable-swanctl    \
+             --enable-nonce --enable-random --enable-drbg --enable-openssl --enable-curl       \
+             --enable-pem --enable-x509 --enable-constraints --enable-revocation --enable-pki  \
+             --enable-pubkey --enable-socket-default --enable-kernel-netlink --enable-resolve  \
+             --enable-eap-identity --enable-eap-md5 --enable-eap-dynamic --enable-eap-tls      \
+             --enable-updown --enable-tss-tss2 --enable-tpm
+        make
+        make install
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ github.event.inputs.pkgname }}_related_ipks
+        path: |
+          ./*ipk*
