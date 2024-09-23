@@ -42,7 +42,7 @@ jobs:
         PASSWORD: ${{ github.event.inputs.password }}
       run: |
         cd $GITHUB_WORKSPACE
-        ./config --enable-eap-peap --enable-libipsec --disable-defaults --enable-silent-rules  \
+        ./configure --enable-eap-peap --enable-libipsec --disable-defaults --enable-silent-rules  \
              --enable-charon --enable-systemd --enable-ikev2 --enable-vici --enable-swanctl    \
              --enable-nonce --enable-random --enable-drbg --enable-openssl --enable-curl       \
              --enable-pem --enable-x509 --enable-constraints --enable-revocation --enable-pki  \
